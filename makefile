@@ -5,29 +5,28 @@ endif
 
 PACKAGE := fokbomb
 
-# Local to the root of the project, not the repository
 output_path ?= ../build/$(PACKAGE)
 
-# Define ldflags with version information
 LDFLAGS := -X $(PACKAGE)/main.__DEBUG_str=false
-d_LDFLAGS := -X $(PACKAGE)/main.__DEBUG_str=true
 
+# General build that targets current OS
 build:
 	go build -C ./src/ -ldflags \
 		"-w -s $(LDFLAGS)" \
 		-o $(output_path)
 	@echo Built $(output_path)
 
+# win[dows]
 win:
-	GOOS=windows go build -C ./src/ -ldflags \
-		"-w -s $(LDFLAGS)" \
+	GOOS=windows go \
+		build -C ./src/ \
+		-ldflags "-w -s -X main.__DEBUG_str=false" \
 		-o $(output_path).exe
 	@echo Built $(output_path).exe
 
+# d[bug]win[down] (uses d[ebug]_LDFLAGS)
 dwin:
-	GOOS=windows go build -C ./src/ -ldflags \
-		"-w -s $(d_LDFLAGS)" \
-		-o $(output_path).exe
-	@echo Built $(output_path).exe
+	GOOS=windows go build -C ./src/ -o $(output_path)_debug.exe
+	@echo Built $(output_path)_debug.exe
 
 .PHONY: build
