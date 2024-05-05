@@ -13,6 +13,7 @@ LDFLAGS := -X $(PACKAGE)/main.__DEBUG_str=false
 build:
 	go build -C ./src/ -ldflags \
 		"-w -s $(LDFLAGS)" \
+		-trimpath \
 		-o $(output_path)
 	@echo Built $(output_path)
 
@@ -20,6 +21,7 @@ build:
 win:
 	GOOS=windows go \
 		build -C ./src/ \
+		-trimpath \
 		-ldflags "-w -s -X main.__DEBUG_str=false" \
 		-o $(output_path).exe
 	@echo Built $(output_path).exe
@@ -28,5 +30,10 @@ win:
 dwin:
 	GOOS=windows go build -C ./src/ -o $(output_path)_debug.exe
 	@echo Built $(output_path)_debug.exe
+
+gwin:
+	bash ./gargle.make.sh
+
+all: build win dwin gwin
 
 .PHONY: build
