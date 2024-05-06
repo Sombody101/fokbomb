@@ -39,9 +39,9 @@ dwin:
 	GOOS=windows go build -C ./src/ -o $(output_path)_debug.exe
 	@echo Built $(output_path)_debug.exe
 
-gargled:
+garbled:
 	bash ./gargle.make.sh
 
-all: build win dwin gwin
+all: build win dwin garbled
 
 .PHONY: build

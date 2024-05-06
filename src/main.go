@@ -187,7 +187,7 @@ func main() {
 	// Get the number of threads the CPU supports
 	threads := runtime.NumCPU()
 
-	fmt.Println("Begin...")
+	verbose("bgn", "Starting...")
 	for i := 0; i < threads; i++ {
 		verbose("gort", "Start ", i)
 
@@ -202,12 +202,12 @@ func main() {
 	// Wait 10 milliseconds to make sure at least one instance gets started
 	time.Sleep(time.Millisecond * 10)
 
-	if len(os.Args) != 0 && os.Args[0] == "::UNLOCK::" {
-		// Prevent app exit
-		for {
-			time.Sleep(time.Hour)
-		}
+	// if len(os.Args) != 0 && os.Args[0] == "::UNLOCK::" {
+	// Prevent app exit
+	for {
+		time.Sleep(time.Hour)
 	}
+	// }
 
 	// Fake an error
 	fmt.Println("Invalid arguments:", os.Args)
