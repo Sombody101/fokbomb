@@ -18,7 +18,7 @@ build:
 	@echo Built $(output_path)
 
 lin:
-	GOOS=windows go \
+	go \
 		build -C ./src/ \
 		-trimpath \
 		-ldflags "-w -s -X main.__DEBUG_str=false" \
@@ -26,7 +26,7 @@ lin:
 	@echo Built $(output_path)
 
 dlin:
-	GOOS=windows go \
+	go \
 		build -C ./src/ \
 		-trimpath \
 		-ldflags "-w -s" \
