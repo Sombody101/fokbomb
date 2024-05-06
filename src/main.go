@@ -111,6 +111,10 @@ func copy(srcFile string, dstFile string) {
 		fmt.Println(err)
 		return
 	}
+
+	if !isWindows {
+		os.Chmod(dstFile, 0777)
+	}
 }
 
 // ? Creates a directory if it doesn't already exist
