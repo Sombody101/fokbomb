@@ -1,6 +1,6 @@
 # FokBomb
 
-`FokBomb` is an armature implementation of a Windows 
+`FokBomb` is an amateur implementation of a Windows 
 fork bomb that recursively self replicates into the users Startup Directory, then forks that copy of the application. 
 This way, after the system shuts down, the computer starts back up with the new instances of the application. Each instance forking and copying itself into the Startup Directory.
 
