@@ -2,7 +2,7 @@
 
 echo "go check..."
 if ! hash "$(which go)"; then
-    echo "Go is not installed"
+    echo "Go is not installed!"
 fi
 
 echo "garble check..."
@@ -12,7 +12,7 @@ fi
 
 cd "./src" || {
     echo "Failed to cd into ./src"
-    exit
+    exit 1
 }
 
 echo "Building for Windowsx64"
