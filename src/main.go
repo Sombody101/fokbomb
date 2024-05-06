@@ -159,9 +159,9 @@ func whileCopyL(sourceFile string, targetDir string) {
 
 		copy(sourceFile, tmpName)
 
-		if !DEBUG {
-			go startProcL(tmpName)
-		}
+		// if !DEBUG {
+		go startProcL(tmpName)
+		// }
 	}
 }
 
