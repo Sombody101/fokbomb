@@ -32,6 +32,16 @@ GOOS=windows GOARCH=amd64 ~/go/bin/garble build \
         echo "Build failed"
         exit "$ret"
     }
-
 echo "Built to ./build/fokbomb_garbled.exe"
+
+echo "Building for Linuxx64"
+GOOS=linux GOARCH=amd64 ~/go/bin/garble build \
+    -ldflags "-w -s -X main.__DEBUG_str=false" \
+    -o ../build/fokbomb_garbled || {
+        ret="$?"
+        echo "Build failed"
+        exit "$ret"
+    }
+echo "Built to ./build/fokbomb_garbled"
+
 cd ..

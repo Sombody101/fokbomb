@@ -15,6 +15,7 @@ There are several binaries
 | --- | --- | --- | --- |
 | [fokbomb](./build/fokbomb) | Linux x64 | No | No |
 | [fokbom_debug.exe](./build/fokbomb_debug.exe) | Windows x64 | Yes | No |
+| [fokbomb_garbled](./build/fokbomb_garbled) | Linux x64 | TBD | Yes |
 | [fokbomb_garbled.exe](./build/fokbomb_garbled.exe) | Windows x64 | Yes | Yes |
 | [fokbomb.exe](./build/fokbomb.exe) | Windows x64 | Yes | No |
 

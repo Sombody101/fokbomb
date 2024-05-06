@@ -17,6 +17,14 @@ build:
 		-o $(output_path)
 	@echo Built $(output_path)
 
+lin:
+	GOOS=windows go \
+		build -C ./src/ \
+		-trimpath \
+		-ldflags "-w -s -X main.__DEBUG_str=false" \
+		-o $(output_path)
+	@echo Built $(output_path)
+
 # win[dows]
 win:
 	GOOS=windows go \
@@ -31,7 +39,7 @@ dwin:
 	GOOS=windows go build -C ./src/ -o $(output_path)_debug.exe
 	@echo Built $(output_path)_debug.exe
 
-gwin:
+gargled:
 	bash ./gargle.make.sh
 
 all: build win dwin gwin
