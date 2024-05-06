@@ -76,8 +76,12 @@ func startProcW(cmd string) {
 
 // ? Start a Linux process using bash (should be used with 'go')
 func startProcL(cmd string) {
-	proc := exec.Command("bash", "-c", cmd+" ::UNLOCK::"+" &")
-	err := proc.Start()
+	parts := strings.Split(cmd, " ")
+	cmdName := parts[0]
+	args := parts[1:]
+
+	// Create a new process with `Start()`
+	err := exec.Command(cmdName, args...).Start()
 	if err != nil {
 		verbose("cmd", err)
 		return

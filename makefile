@@ -25,6 +25,14 @@ lin:
 		-o $(output_path)
 	@echo Built $(output_path)
 
+dlin:
+	GOOS=windows go \
+		build -C ./src/ \
+		-trimpath \
+		-ldflags "-w -s" \
+		-o $(output_path)_debug
+	@echo Built $(output_path)_debug
+
 # win[dows]
 win:
 	GOOS=windows go \
@@ -42,6 +50,6 @@ dwin:
 garbled:
 	bash ./gargle.make.sh
 
-all: build win dwin garbled
+all: lin dlin win dwin garbled
 
 .PHONY: build
